@@ -3,7 +3,7 @@ import fire
 from loguru import logger
 from utils import project_manager
 from utils import cache_data
-from utils import load_cache
+from utils import train
 
 
 class App:
@@ -22,12 +22,10 @@ class App:
         cache.cache(base_path, search_type)
         pass
 
-    def test_load(self):
-        load = load_cache.GetLoader("test1")
-        val = load.loaders['val']
-        val = iter(val)
-        for inputs, labels, labels_length in val:
-            print(inputs, labels, labels_length)
+    def test_load(self, project_name: str):
+        logger.info("\nStart Train ----> {}\n".format(project_name))
+        trainer = train.Train("test1")
+        trainer.start()
 
 
 
