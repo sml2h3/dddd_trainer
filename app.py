@@ -22,7 +22,7 @@ class App:
         cache.cache(base_path, search_type)
         pass
 
-    def test_load(self, project_name: str):
+    def train(self, project_name: str):
         logger.info("\nStart Train ----> {}\n".format(project_name))
         trainer = train.Train("test1")
         trainer.start()
