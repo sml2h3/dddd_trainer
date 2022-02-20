@@ -36,8 +36,8 @@ class Config(object):
                 "SAVE_CHECKPOINTS_STEP": 2000,
                 "TARGET": {
                     "Accuracy": 0.97,
-                    "Epoch": 200,
-                    "Cost": 0.005
+                    "Epoch": 20,
+                    "Cost": 0.05
                 },
                 "LR": 0.01
             }

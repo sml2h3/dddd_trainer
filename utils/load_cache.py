@@ -3,13 +3,15 @@ import os
 
 import torch
 import tqdm
-import numpy as np
 
 from configs import Config
 from loguru import logger
 
 import torchvision
+from PIL import Image, ImageFile
 from torch.utils.data import DataLoader, Dataset, TensorDataset
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class LoadCache(Dataset):
@@ -48,20 +50,19 @@ class LoadCache(Dataset):
             else:
                 image_label = [image_label]
             if self.ImageChannel == 1:
-                mode = torchvision.io.ImageReadMode.GRAY
+                mode = "L"
             else:
-                mode = torchvision.io.ImageReadMode.RGB
-            image = torchvision.io.read_image(image_path, mode=mode)  # shape c, h, w
-            image_shape = image.shape
+                mode = "RGB"
+            image = Image.open(image_path).convert(mode)  # shape c, h, w
+            image_shape = image.size
             image_height = image_shape[1]
-            image_width = image_shape[2]
+            image_width = image_shape[0]
             width = self.resize[0]
             height = self.resize[1]
             if self.resize[0] == -1:
-                image = torchvision.transforms.Resize((height, int(image_width * (height / image_height))))(image)
+                image = image.resize((int(image_width * (height / image_height)), height))
             else:
-                image = torchvision.transforms.Resize((height, width))(image)
-            image = torchvision.transforms.ToPILImage()(image)
+                image = image.resize((width, height))
             label = [int(self.charset.index(item)) for item in list(image_label)]
             return image, label
 

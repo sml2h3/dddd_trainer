@@ -71,7 +71,9 @@ class Train:
         loaders = load_cache.GetLoader(project_name)
         self.train = loaders.loaders['train']
         self.val = loaders.loaders['val']
+        del loaders
         logger.info("\nGet Data Loader End!")
+
 
         self.loss = 0
         self.avg_loss = 0
@@ -139,7 +141,7 @@ class Train:
                         self.net.export_onnx(self.net, dummy_input,
                                              os.path.join(self.models_path, "{}_{}_{}_{}_{}.onnx".format(
                                                  self.project_name, str(accuracy), self.epoch, self.step,
-                                                 time.localtime(self.now_time)))
+                                                 time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime(self.now_time))))
                                              , input_names, output_names, dynamic_ax)
                         with open(os.path.join(self.models_path, "charset.json"), 'w', encoding="utf-8") as f:
                             f.write(json.dumps(self.net.charset, ensure_ascii=False))

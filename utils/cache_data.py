@@ -55,12 +55,10 @@ class CacheData:
         logger.info("\nChecking labels.txt ...")
         error_files = set(labels_filename_lines).difference(set(files))
         logger.info("\nCheck labels.txt end! {} errors!".format(len(error_files)))
-        for ef in error_files:
-            labels_lines.remove(ef)
         del files
-        self.__collect_data(labels_lines, images_path, is_file=True)
+        self.__collect_data(labels_lines, images_path, error_files, is_file=True)
 
-    def __collect_data(self, lines, base_path, is_file=False):
+    def __collect_data(self, lines, base_path, error_files, is_file=False):
         labels = []
         caches = []
 
@@ -72,6 +70,8 @@ class CacheData:
             else:
                 filename = file
                 label = "_".join(filename.split("_")[:-1])
+            if filename in error_files:
+                continue
             label = label.replace(" ", "")
             if filename.split('.')[-1] in self.allow_ext:
                 if " " in filename:
