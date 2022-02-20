@@ -2,12 +2,19 @@ import json
 
 from .backbone import *
 import torch
+
 torch.set_num_threads(1)
+
+import numpy as np
+
+np.random.seed(0)
+torch.manual_seed(0)
 
 
 class Net(torch.nn.Module):
     def __init__(self, conf):
         super(Net, self).__init__()
+
         self.backbones_list = {
             "ddddocr": DdddOcr,
             "effnetv2_l": effnetv2_l,
@@ -24,6 +31,8 @@ class Net(torch.nn.Module):
             "Adam": torch.optim.Adam,
         }
         self.conf = conf
+        if self.conf['System']['GPU']:
+            torch.cuda.manual_seed_all(0)
         self.image_channel = self.conf['Model']['ImageChannel']
         self.resize = [int(self.conf['Model']['ImageWidth']), int(self.conf['Model']['ImageHeight'])]
         self.charset = self.conf['Model']['CharSet']
@@ -47,7 +56,8 @@ class Net(torch.nn.Module):
         self.word = self.conf['Model']['Word']
         if not self.word:
             self.dropout = self.conf['Train']['DROPOUT']
-            self.lstm = torch.nn.LSTM(input_size=self.out_size, hidden_size=self.out_size, bidirectional=True, num_layers=1, dropout=self.dropout)
+            self.lstm = torch.nn.LSTM(input_size=self.out_size, hidden_size=self.out_size, bidirectional=True,
+                                      num_layers=1, dropout=self.dropout)
             self.paramters.append({'params': self.lstm.parameters()})
 
             self.loss = torch.nn.CTCLoss(blank=0, reduction='mean')
@@ -184,3 +194,11 @@ class Net(torch.nn.Module):
         torch.onnx.export(net, dummy_input, graph_path, export_params=True, verbose=False,
                           input_names=input_names, output_names=output_names, dynamic_axes=dynamic_ax,
                           opset_version=12, do_constant_folding=True, _retain_param_name=False)
+
+    def load_checkpoint(self, path):
+        param = torch.load(path)
+        state_dict = param['net']
+        optimizer = param['optimizer']
+        self.load_state_dict(state_dict)
+        self.optimizer.load_state_dict(optimizer)
+        return param['epoch'], param['step'], param['lr']

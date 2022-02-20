@@ -33,6 +33,7 @@ class Config(object):
                 'DROPOUT': 0.3,
                 'OPTIMIZER': 'SGD',
                 "TEST_STEP": 1000,
+                "SAVE_CHECKPOINTS_STEP": 2000,
                 "TARGET": {
                     "Accuracy": 0.97,
                     "Epoch": 200,

@@ -120,21 +120,22 @@ class GetLoader:
         self.transform_list.append(torchvision.transforms.ToTensor())
         if self.ImageChannel == 1:
             self.transform_list.append(torchvision.transforms.Normalize(mean=[0.456],
-                                                                   std=[0.224]))
+                                                                        std=[0.224]))
         else:
             if self.ImageChannel != 3:
                 logger.error("ImageChannel must be 1 or 3!")
                 exit()
             self.transform_list.append(torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                                                   std=[0.229, 0.224, 0.225]))
+                                                                        std=[0.229, 0.224, 0.225]))
         self.transform = torchvision.transforms.Compose(self.transform_list)
-        tarin_loader = LoadCache(self.cache_train_path, self.path, self.word, self.ImageChannel, self.resize, self.charset)
+        tarin_loader = LoadCache(self.cache_train_path, self.path, self.word, self.ImageChannel, self.resize,
+                                 self.charset)
         val_loader = LoadCache(self.cache_val_path, self.path, self.word, self.ImageChannel, self.resize, self.charset)
         self.loaders = {
             'train': DataLoader(dataset=tarin_loader, batch_size=self.batch_size, shuffle=True, drop_last=True,
                                 num_workers=0, collate_fn=self.collate_to_sparse),
             'val': DataLoader(dataset=val_loader, batch_size=self.val_batch_size, shuffle=True, drop_last=True,
-                                num_workers=0, collate_fn=self.collate_to_sparse),
+                              num_workers=0, collate_fn=self.collate_to_sparse),
         }
 
     def collate_to_sparse(self, batch):
@@ -159,4 +160,3 @@ class GetLoader:
             images_pad.append(img)
         images_pad = torch.stack(images_pad, dim=0)
         return [images_pad, torch.FloatTensor(values), torch.IntTensor(shapes)]
-
