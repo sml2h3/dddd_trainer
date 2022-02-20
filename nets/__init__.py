@@ -2,6 +2,7 @@ import json
 
 from .backbone import *
 import torch
+torch.set_num_threads(1)
 
 
 class Net(torch.nn.Module):
@@ -46,8 +47,7 @@ class Net(torch.nn.Module):
         self.word = self.conf['Model']['Word']
         if not self.word:
             self.dropout = self.conf['Train']['DROPOUT']
-            self.lstm = torch.nn.LSTM(input_size=self.out_size, hidden_size=self.out_size, bidirectional=True,
-                                      dropout=self.dropout, num_layers=1)
+            self.lstm = torch.nn.LSTM(input_size=self.out_size, hidden_size=self.out_size, bidirectional=True, num_layers=1, dropout=self.dropout)
             self.paramters.append({'params': self.lstm.parameters()})
 
             self.loss = torch.nn.CTCLoss(blank=0, reduction='mean')
@@ -97,13 +97,13 @@ class Net(torch.nn.Module):
             outputs = self.fc(outputs)
         return outputs
 
-    def training(self, inputs, labels, labels_length):
+    def trainer(self, inputs, labels, labels_length):
         outputs = self.get_features(inputs)
         loss, lr = self.get_loss(outputs, labels, labels_length)
         return loss, lr
 
-    def testing(self, inputs, labels, labels_length):
-        predict = self.get_feature(inputs)
+    def tester(self, inputs, labels, labels_length):
+        predict = self.get_features(inputs)
         pred_decode_labels = []
         labels_list = []
         correct_list = []
@@ -136,7 +136,7 @@ class Net(torch.nn.Module):
             raise Exception("origin labels length is {}, but pred labels length is {}".format(
                 len(labels_list), len(pred_decode_labels)))
         for ids in range(len(labels_list)):
-            if labels_list[ids][0] == pred_decode_labels[ids].item():
+            if labels_list[ids] == pred_decode_labels[ids]:
                 correct_list.append(ids)
             else:
                 error_list.append(ids)
@@ -147,7 +147,7 @@ class Net(torch.nn.Module):
         if self.word:
             loss = self.loss(predict, labels.long().cuda())
         else:
-            log_predict = predict.log_softmax(2).detach().requires_grad_()
+            log_predict = predict.log_softmax(2)
             seq_len = torch.IntTensor([log_predict.shape[0]] * log_predict.shape[1])
             loss = self.loss(log_predict.cpu(), labels, seq_len, labels_length)
         self.optimizer.zero_grad()

@@ -64,7 +64,7 @@ class Train:
                 self.now_time = time.time()
                 inputs = self.net.variable_to_device(inputs, device=self.device)
 
-                loss, lr = self.net.training(inputs, labels, labels_length)
+                loss, lr = self.net.trainer(inputs, labels, labels_length)
 
                 self.avg_loss += loss
 
@@ -80,9 +80,11 @@ class Train:
                     model_path = os.path.join(self.checkpoints_path, "checkpoint_{}_{}_{}.tar".format(
                         self.project_name, self.epoch, self.step,
                     ))
+                    self.net.scheduler.step()
                     self.net.save_model(model_path,
                                         {"net": self.net.state_dict(), "optimizer": self.net.optimizer.state_dict(),
                                          "epoch": self.epoch, "step": self.step})
+
                 if self.step % self.test_step == 0:
                     try:
                         test_inputs, test_labels, test_labels_length = next(val_iter)
@@ -94,7 +96,7 @@ class Train:
                         continue
                     test_inputs = self.net.variable_to_device(test_inputs, self.device)
                     self.net = self.net.train(False)
-                    pred_labels, labels_list, correct_list, error_list = self.net.test_op(test_inputs, test_labels,
+                    pred_labels, labels_list, correct_list, error_list = self.net.tester(test_inputs, test_labels,
                                                                                           test_labels_length)
                     self.net = self.net.train()
                     accuracy = len(correct_list) / test_inputs.shape[0]
@@ -102,6 +104,7 @@ class Train:
                         time.strftime("[%Y-%m-%d-%H_%M_%S]", time.localtime(self.now_time)), self.epoch, self.step,
                         str(loss), str(self.avg_loss / 100), lr, accuracy
                     ))
+                    self.avg_loss = 0
                     if accuracy > self.target_acc and self.epoch > self.min_epoch and self.avg_loss < self.max_loss:
                         logger.info("\nTraining Finished!Exporting Model...")
                         dummy_input = self.net.get_random_tensor()
@@ -121,7 +124,7 @@ class Train:
                         exit()
 
             self.epoch += 1
-            self.net.scheduler.step(self.epoch)
+
 
 
 if __name__ == '__main__':

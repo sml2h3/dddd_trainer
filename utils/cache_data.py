@@ -63,8 +63,7 @@ class CacheData:
     def __collect_data(self, lines, base_path, is_file=False):
         labels = []
         caches = []
-        if not self.conf['Model']['Word']:
-            labels.append(" ")
+
         for file in tqdm.tqdm(lines):
             if is_file:
                 line_list = file.split('\t')
@@ -88,6 +87,8 @@ class CacheData:
             else:
                 logger.warning("\nFile({}) has a suffix that is not allowed! We will remove it!".format(file))
         labels = list(set(labels))
+        if not self.conf['Model']['Word']:
+            labels.insert(0, " ")
         logger.info("\nCoolect labels is {}".format(json.dumps(labels, ensure_ascii=False)))
         self.conf['System']['Path'] = base_path
         self.conf['Model']['CharSet'] = labels

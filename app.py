@@ -24,7 +24,7 @@ class App:
 
     def train(self, project_name: str):
         logger.info("\nStart Train ----> {}\n".format(project_name))
-        trainer = train.Train("test1")
+        trainer = train.Train(project_name)
         trainer.start()
 
 

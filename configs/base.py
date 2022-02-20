@@ -28,7 +28,7 @@ class Config(object):
                 "BATCH_SIZE": 32,
                 "TEST_BATCH_SIZE": 32,
                 'CNN': {
-                    "NAME": "ddddOcr",
+                    "NAME": "ddddocr",
                 },
                 'DROPOUT': 0.3,
                 'OPTIMIZER': 'SGD',
