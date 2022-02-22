@@ -34,7 +34,7 @@ class CacheData:
     def __get_label_from_name(self, base_path: str):
         files = os.listdir(base_path)
         logger.info("\nFiles number is {}.".format(len(files)))
-        self.__collect_data(files, base_path)
+        self.__collect_data(files, base_path, [])
 
     def __get_label_from_file(self, base_path: str):
         labels_path = os.path.join(base_path, "labels.txt")
