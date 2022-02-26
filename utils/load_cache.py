@@ -60,7 +60,10 @@ class LoadCache(Dataset):
             width = self.resize[0]
             height = self.resize[1]
             if self.resize[0] == -1:
-                image = image.resize((int(image_width * (height / image_height)), height))
+                if self.word:
+                    image = image.resize((height, height))
+                else:
+                    image = image.resize((int(image_width * (height / image_height)), height))
             else:
                 image = image.resize((width, height))
             label = [int(self.charset.index(item)) for item in list(image_label)]
@@ -97,12 +100,15 @@ class GetLoader:
             exit()
 
         self.config = Config(project_name)
+
         self.conf = self.config.load_config()
 
         self.charset = self.conf['Model']['CharSet']
+
         logger.info("\nCharsets is {}".format(json.dumps(self.charset, ensure_ascii=False)))
 
         self.resize = [int(self.conf['Model']['ImageWidth']), int(self.conf['Model']['ImageHeight'])]
+
         logger.info("\nImage Resize is {}".format(json.dumps(self.resize)))
 
         self.ImageChannel = self.conf['Model']['ImageChannel']

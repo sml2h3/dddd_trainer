@@ -51,12 +51,8 @@ class DdddOcr(nn.Module):
 
 def test():
     net = DdddOcr(1)
-    x = torch.randn(1, 1, 64, 224)
+    x = torch.randn(1, 1, 128, 128)
     y = net(x)
-    print(y.size())
-    y = y.permute(3, 0, 1, 2)
-    w, b, c, h = y.shape
-    y = y.view(w, b, c * h)
     print(y.size())
 
 if __name__ == '__main__':

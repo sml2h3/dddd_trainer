@@ -1,0 +1,23 @@
+Model:
+    CharSet: [火车, 船, 自行车, 飞机, 水上飞机, 巴士, 一条船, 摩托车, 卡车]
+    ImageChannel: 1
+    ImageHeight: 128
+    ImageWidth: -1
+    Word: true
+System:
+    Allow_Ext: [jpg, jpeg, png, bmp]
+    GPU: true
+    GPU_ID: 0
+    Path: C:\Users\sml2h3\PycharmProjects\hcaptcha\samples
+    Project: hcaptcha
+    Val: 0.03
+Train:
+    BATCH_SIZE: 32
+    CNN: {NAME: ddddocr}
+    DROPOUT: 0.3
+    LR: 0.01
+    OPTIMIZER: SGD
+    SAVE_CHECKPOINTS_STEP: 2000
+    TARGET: {Accuracy: 0.97, Cost: 0.05, Epoch: 20}
+    TEST_BATCH_SIZE: 32
+    TEST_STEP: 1000

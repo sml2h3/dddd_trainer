@@ -39,21 +39,24 @@ class Net(torch.nn.Module):
         self.charset_len = len(self.charset)
         self.backbone = self.conf['Train']['CNN']['NAME']
         self.paramters = []
-
+        self.word = self.conf['Model']['Word']
         if self.backbone in self.backbones_list:
             test_cnn = self.backbones_list[self.backbone](nc=1)
-            x = torch.randn(1, 1, 64, 224)
+            x = torch.randn(1, 1, self.resize[1], self.resize[1])
             test_features = test_cnn(x)
             del x
             del test_cnn
-            self.out_size = test_features.size()[1] * test_features.size()[2]
+            if self.word:
+                self.out_size = test_features.size()[1] * test_features.size()[2] * test_features.size()[3]
+            else:
+                self.out_size = test_features.size()[1] * test_features.size()[2]
             self.cnn = self.backbones_list[self.backbone](nc=self.image_channel)
         else:
             raise Exception("{} is not found in backbones! backbone list : {}".format(self.backbone, json.dumps(
                 list(self.backbones_list.keys()))))
         self.paramters.append({'params': self.cnn.parameters()})
 
-        self.word = self.conf['Model']['Word']
+
         if not self.word:
             self.dropout = self.conf['Train']['DROPOUT']
             self.lstm = torch.nn.LSTM(input_size=self.out_size, hidden_size=self.out_size, bidirectional=True,
@@ -61,13 +64,15 @@ class Net(torch.nn.Module):
             self.paramters.append({'params': self.lstm.parameters()})
 
             self.loss = torch.nn.CTCLoss(blank=0, reduction='mean')
+            self.fc = torch.nn.Linear(in_features=self.out_size * 2, out_features=self.charset_len)
+
         else:
             self.lstm = None
             self.loss = torch.nn.CrossEntropyLoss()
+            self.fc = torch.nn.Linear(in_features=self.out_size, out_features=self.charset_len)
 
         self.paramters.append({'params': self.loss.parameters()})
 
-        self.fc = torch.nn.Linear(in_features=self.out_size * 2, out_features=self.charset_len)
         self.paramters.append({'params': self.fc.parameters()})
 
         self.lr = self.conf['Train']['LR']
@@ -104,6 +109,7 @@ class Net(torch.nn.Module):
             outputs = self.fc(outputs)
             outputs = outputs.view(time_step, batch_size, -1)
         else:
+            outputs = outputs.view(outputs.size(0), -1)
             outputs = self.fc(outputs)
         return outputs
 
@@ -146,7 +152,15 @@ class Net(torch.nn.Module):
             raise Exception("origin labels length is {}, but pred labels length is {}".format(
                 len(labels_list), len(pred_decode_labels)))
         for ids in range(len(labels_list)):
-            if labels_list[ids] == pred_decode_labels[ids]:
+            if self.word:
+                label_res = labels_list[ids][0]
+
+                pred_res = pred_decode_labels[ids].item()
+            else:
+                label_res = labels_list[ids]
+
+                pred_res = pred_decode_labels[ids]
+            if label_res == pred_res:
                 correct_list.append(ids)
             else:
                 error_list.append(ids)
@@ -183,10 +197,13 @@ class Net(torch.nn.Module):
         width = self.resize[0]
         height = self.resize[1]
         if width == -1:
-            w = 240
+            if self.word:
+                w = height
+            else:
+                w = 240
             h = height
         else:
-            w = width
+            w = height
             h = height
         return torch.randn(1, self.image_channel, h, w, device='cpu')
 

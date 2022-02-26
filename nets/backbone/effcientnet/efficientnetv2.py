@@ -223,13 +223,10 @@ def effnetv2_xl(**kwargs):
 
 def test():
     net = effnetv2_s(nc=1)
-    x = torch.randn(2, 3, 50, 224)
+    x = torch.randn(1, 1, 128, 128)
     y = net(x)
     print(y.size())
-    y = y.permute(3, 0, 1, 2)
-    w, b, c, h = y.shape
-    y = y.view(w, b, c * h)
-    print(y.size())
+
 
 if __name__ == '__main__':
     test()
