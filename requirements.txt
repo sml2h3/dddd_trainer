@@ -1,6 +1,5 @@
 fire~=0.4.0
 loguru~=0.5.3
-yaml~=0.2.5
 pyyaml~=6.0
 tqdm~=4.62.3
 numpy~=1.20.3

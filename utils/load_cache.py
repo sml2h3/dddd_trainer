@@ -135,11 +135,15 @@ class GetLoader:
             self.transform_list.append(torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                                                         std=[0.229, 0.224, 0.225]))
         self.transform = torchvision.transforms.Compose(self.transform_list)
-        tarin_loader = LoadCache(self.cache_train_path, self.path, self.word, self.ImageChannel, self.resize,
+        train_loader = LoadCache(self.cache_train_path, self.path, self.word, self.ImageChannel, self.resize,
                                  self.charset)
+        if len(train_loader) < self.batch_size:
+            self.batch_size = len(train_loader)
         val_loader = LoadCache(self.cache_val_path, self.path, self.word, self.ImageChannel, self.resize, self.charset)
+        if len(val_loader) < self.batch_size:
+            self.val_batch_size = len(val_loader)
         self.loaders = {
-            'train': DataLoader(dataset=tarin_loader, batch_size=self.batch_size, shuffle=True, drop_last=True,
+            'train': DataLoader(dataset=train_loader, batch_size=self.batch_size, shuffle=True, drop_last=True,
                                 num_workers=0, collate_fn=self.collate_to_sparse),
             'val': DataLoader(dataset=val_loader, batch_size=self.val_batch_size, shuffle=True, drop_last=True,
                               num_workers=0, collate_fn=self.collate_to_sparse),
