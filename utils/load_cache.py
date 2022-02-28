@@ -2,7 +2,6 @@ import json
 import os
 
 import torch
-import tqdm
 
 from configs import Config
 from loguru import logger
@@ -22,17 +21,11 @@ class LoadCache(Dataset):
         self.ImageChannel = image_channel
         self.resize = resize
         self.charset = charset
-
+        self.caches = []
         logger.info("\nReading Cache File... ----> {}".format(self.cache_path))
 
         with open(self.cache_path, 'r', encoding='utf-8') as f:
-            caches = f.readlines()
-        self.caches = []
-        for cache in tqdm.tqdm(caches):
-            cache = cache.replace("\r", "").replace("\n", "").split("\t")
-            self.caches.append(cache)
-        del caches
-
+            self.caches = f.readlines()
         self.caches_num = len(self.caches)
         logger.info("\nRead Cache File End! Caches Num is {}.".format(self.caches_num))
 
@@ -42,6 +35,7 @@ class LoadCache(Dataset):
     def __getitem__(self, idx):
         try:
             data = self.caches[idx]
+            data = data.replace("\r", "").replace("\n", "").split("\t")
             image_name = data[0]
             image_label = data[1]
             image_path = os.path.join(self.path, image_name)
@@ -70,7 +64,7 @@ class LoadCache(Dataset):
             return image, label
 
         except Exception as e:
-            logger.error("\nError: {}, File: {}".format(str(e), self.caches[idx][0]))
+            logger.error("\nError: {}, File: {}".format(str(e), self.caches[idx].split("\t")[0]))
             return None, None
 
 
@@ -148,6 +142,8 @@ class GetLoader:
             'val': DataLoader(dataset=val_loader, batch_size=self.val_batch_size, shuffle=True, drop_last=True,
                               num_workers=0, collate_fn=self.collate_to_sparse),
         }
+        del val_loader
+        del train_loader
 
     def collate_to_sparse(self, batch):
         values = []

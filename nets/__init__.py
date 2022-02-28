@@ -12,7 +12,7 @@ torch.manual_seed(0)
 
 
 class Net(torch.nn.Module):
-    def __init__(self, conf):
+    def __init__(self, conf, lr=None):
         super(Net, self).__init__()
 
         self.backbones_list = {
@@ -75,7 +75,10 @@ class Net(torch.nn.Module):
 
         self.paramters.append({'params': self.fc.parameters()})
 
-        self.lr = self.conf['Train']['LR']
+        if lr == None:
+            self.lr = self.conf['Train']['LR']
+        else:
+            self.lr = lr
 
         self.optim = self.conf['Train']['OPTIMIZER']
         if self.optim in self.optimizers_list:
@@ -88,6 +91,7 @@ class Net(torch.nn.Module):
                 list(self.optimizers_list.keys()))))
 
         self.scheduler = torch.optim.lr_scheduler.ExponentialLR(self.optimizer, gamma=0.98)
+
 
     def forward(self, inputs):
         predict = self.get_features(inputs)
@@ -183,7 +187,8 @@ class Net(torch.nn.Module):
     def save_model(self, path, net):
         torch.save(net, path)
 
-    def get_device(self, gpu_id):
+    @staticmethod
+    def get_device(gpu_id):
         if gpu_id == -1:
             device = torch.device('cpu'.format(str(gpu_id)))
         else:
@@ -212,10 +217,15 @@ class Net(torch.nn.Module):
                           input_names=input_names, output_names=output_names, dynamic_axes=dynamic_ax,
                           opset_version=12, do_constant_folding=True, _retain_param_name=False)
 
-    def load_checkpoint(self, path):
-        param = torch.load(path)
+
+    @staticmethod
+    def load_checkpoint(path, device):
+        param = torch.load(path, map_location=device)
         state_dict = param['net']
         optimizer = param['optimizer']
-        self.load_state_dict(state_dict)
-        self.optimizer.load_state_dict(optimizer)
-        return param['epoch'], param['step'], param['lr']
+        # self.lr = param['lr']
+        # self.reset_optimizer(param['epoch'])
+        # self.load_state_dict(state_dict)
+        # self.optimizer.load_state_dict(optimizer)
+        # return param['epoch'], param['step'], param['lr']
+        return param, state_dict, optimizer

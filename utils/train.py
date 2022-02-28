@@ -20,6 +20,9 @@ class Train:
         self.models_path = os.path.join(self.project_path, "models")
         self.epoch = 0
         self.step = 0
+        self.lr = None
+        self.state_dict = None
+        self.optimizer = None
         self.config = Config(project_name)
         self.conf = self.config.load_config()
 
@@ -36,23 +39,16 @@ class Train:
         self.ImageChannel = self.conf['Model']['ImageChannel']
         logger.info("\nTaget:\nmin_Accuracy: {}\nmin_Epoch: {}\nmax_Loss: {}".format(self.target_acc, self.min_epoch,
                                                                                      self.max_loss))
-
-        logger.info("\nBuilding Net...")
-        self.net = Net(self.conf)
-        logger.info(self.net)
-        logger.info("\nBuilding End")
-
         self.use_gpu = self.conf['System']['GPU']
         if self.use_gpu:
             self.gpu_id = self.conf['System']['GPU_ID']
             logger.info("\nUSE GPU ----> {}".format(self.gpu_id))
-            self.device = self.net.get_device(self.gpu_id)
-            self.net.to(self.device)
+            self.device = Net.get_device(self.gpu_id)
+
         else:
             self.gpu_id = -1
-            self.device = self.net.get_device(self.gpu_id)
+            self.device = Net.get_device(self.gpu_id)
             logger.info("\nUSE CPU".format(self.gpu_id))
-
         logger.info("\nSearch for history checkpoints...")
         history_checkpoints = os.listdir(self.checkpoints_path)
         if len(history_checkpoints) > 0:
@@ -60,24 +56,35 @@ class Train:
             newer_checkpoint = None
             for checkpoint in history_checkpoints:
                 checkpoint_name = checkpoint.split(".")[0].split("_")
-                if int(checkpoint_name[2]) > history_step:
+                if int(checkpoint_name[3]) > history_step:
                     newer_checkpoint = checkpoint
-                    history_step = int(checkpoint_name[2])
-            self.epoch, self.step, self.lr = self.net.load_checkpoint(
-                os.path.join(self.checkpoints_path, newer_checkpoint))
+                    history_step = int(checkpoint_name[3])
+            param, self.state_dict, self.optimizer= Net.load_checkpoint(
+                os.path.join(self.checkpoints_path, newer_checkpoint), self.device)
+            self.epoch, self.step, self.lr = param['epoch'], param['step'], param['lr']
             self.epoch += 1
             self.step += 1
-            self.net.lr = self.lr
 
         else:
             logger.info("\nEmpty history checkpoints")
+
+        logger.info("\nBuilding Net...")
+        self.net = Net(self.conf, self.lr)
+        if self.state_dict:
+            self.net.load_state_dict(self.state_dict)
+        logger.info(self.net)
+        logger.info("\nBuilding End")
+
+
+
+        self.net = self.net.to(self.device)
         logger.info("\nGet Data Loader...")
+
         loaders = load_cache.GetLoader(project_name)
         self.train = loaders.loaders['train']
         self.val = loaders.loaders['val']
         del loaders
         logger.info("\nGet Data Loader End!")
-
 
         self.loss = 0
         self.avg_loss = 0
