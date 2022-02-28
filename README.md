@@ -151,7 +151,7 @@ Train:
 
 - ### 6、缓存数据
 
-`python app.py cache /root/images_set/`
+`python app.py cache {project_name} /root/images_set/`
 
 - ### 7、开始训练或恢复训练
 
