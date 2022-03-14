@@ -153,6 +153,10 @@ Train:
 
 `python app.py cache {project_name} /root/images_set/`
 
+如果是从labels.txt里面读取数据
+
+`python app.py cache {project_name} /root/images_set/ file`
+
 - ### 7、开始训练或恢复训练
 
 `python app.py train {project_name}`
