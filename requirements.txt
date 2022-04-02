@@ -5,3 +5,4 @@ tqdm
 numpy
 pillow
 torch
+torchvision
