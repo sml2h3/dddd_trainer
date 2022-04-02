@@ -4,3 +4,4 @@ pyyaml
 tqdm
 numpy
 pillow
+torch
