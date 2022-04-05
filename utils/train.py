@@ -58,7 +58,7 @@ class Train:
                 checkpoint_name = checkpoint.split(".")[0].split("_")
                 if int(checkpoint_name[-1]) > history_step:
                     newer_checkpoint = checkpoint
-                    history_step = int(checkpoint_name[3])
+                    history_step = int(checkpoint_name[-1])
             param, self.state_dict, self.optimizer= Net.load_checkpoint(
                 os.path.join(self.checkpoints_path, newer_checkpoint), self.device)
             self.epoch, self.step, self.lr = param['epoch'], param['step'], param['lr']
