@@ -44,7 +44,7 @@ Macos仅支持cpu训练
 
 `python app.py create {project_name}`
 
-如果想要创建一个CNN的项目，则可以加上--single参数，CNN项目适用于图片宽高是一个确定值和识别结果位数一定的情况
+如果想要创建一个CNN的项目，则可以加上--single参数，CNN项目识别比如图片类是什么分类的情况，比如图片上只有一个字，识别这张图是什么字（图上有多个字的不要用CNN模式），又比如分辨图片里是狮子还是兔子用CNN模式比较合适，大多数OCR需求请不要使用--single
 
 `python app.py create {project_name} --single`
 
