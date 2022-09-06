@@ -118,7 +118,9 @@ project_name 为项目名称，尽量不要以特殊符号命名
   ```
   
   ### 为了新手更好的理解本部分的内容，本项目也提供了两套基础数据集提供测试
-
+  [数据集一](https://wwm.lanzoum.com/iBft00b5z2kj)
+    [数据集二](https://wwm.lanzoum.com/iUyYb0b5z3lg)
+    [数据集三](https://wwm.lanzoum.com/itczd0b5z3yj)
 - ### 5、修改配置文件
 ```yaml
 Model:
