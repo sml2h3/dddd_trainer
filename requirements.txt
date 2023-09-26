@@ -3,4 +3,4 @@ loguru
 pyyaml
 tqdm
 numpy
-pillow
+pillow=9.5.0
