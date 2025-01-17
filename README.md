@@ -1,4 +1,4 @@
-# dddd_trainer 带带弟弟OCR训练工具
+# dddd_trainer 带带弟弟OCR训练工具 （2025.01.18项目即将更新，将支持完善的可视化训练和新的训练策略）
 
 ### 带带弟弟OCR所用的训练工具今天正式开源啦！ [ddddocr](https://github.com/sml2h3/ddddocr)
 
