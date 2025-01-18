@@ -166,3 +166,7 @@ Train:
 - ### 8、部署
 
 `你们先训练着，我去适配ddddocr和ocr_api_server了，适配完我再继续更新文档`
+
+- ### 9、备注
+  
+  1. ddddocr crnn网络结构来自 https://github.com/meijieru/crnn.pytorch.git
