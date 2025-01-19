@@ -2,6 +2,7 @@ import json
 
 from .backbone import *
 import torch
+import sys
 
 torch.set_num_threads(1)
 
@@ -191,6 +192,8 @@ class Net(torch.nn.Module):
     def get_device(gpu_id):
         if gpu_id == -1:
             device = torch.device('cpu'.format(str(gpu_id)))
+        elif sys.platform == 'darwin':
+            device = torch.device('mps')
         else:
             device = torch.device('cuda:{}'.format(str(gpu_id)))
         return device
