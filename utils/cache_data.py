@@ -89,7 +89,7 @@ class CacheData:
         labels = list(set(labels))
         if not self.conf['Model']['Word']:
             labels.insert(0, " ")
-        logger.info("\nCoolect labels is {}".format(json.dumps(labels, ensure_ascii=False)))
+        logger.info("\nCollect labels is {}".format(json.dumps(labels, ensure_ascii=False)))
         self.conf['System']['Path'] = base_path
         self.conf['Model']['CharSet'] = labels
         self.config.make_config(config_dict=self.conf, single=self.conf['Model']['Word'])
