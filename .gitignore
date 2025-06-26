@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Claude settings
+.claude/*
+
+# Poetry (keep lock file)
+# poetry.lock is tracked
