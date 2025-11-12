@@ -4,3 +4,6 @@ pyyaml
 tqdm
 numpy<2
 pillow==9.5.0
+torch
+torchvision
+onnx
